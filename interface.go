@@ -1,29 +1,54 @@
 // interface
-// Go中虽然没有class，但依旧有methods
-// 只能为同一个包中的类型定义方法
-// Receiver 可以是类型的值或者指针
-// 不存在方法重载
-// 可以使用值或指针类型来调用方法，编译器会自动完成转换
-// 冲某种意义上说，方法是函数的语法糖，因为receiver其实就是方法所接受的第一个参数(Method Value vs. Method Expression)
-// 如果外部结构和嵌入结构存在同名方法，则优先调用外部结构的方法
-// 类型别名不会拥有底层类型所附带的方法
-// 方法可以调用结构中的非公开字段
+// 接口是一个或多个方法签名的集合
+// 只要某个类型拥有该接口的所有方法签名，即算实现该接口，无需显示声明实现了哪个接口。这称为Structural Typing
+// 接口只有方法声明，没有实现，没有数据字段
+// 接口可以匿名嵌入其它接口，或嵌入到结构中
+// 将对象赋值给接口时，会发生拷贝，而接口内部存储的是指向这个复制品的指针，既无法修改复制品的状态，也无法获取指针
+// 只有当接口存储的类型和对象都为nil时，接口才等于nil
+// 接口调用不会做receiver的自动转换
+// 接口同样支持匿名字段方法
+// 接口也可以实现类似OOP中的多态
+// 空接口可以作为任何类型数据的容器
 
 package main
 
 import "fmt"
 
-type cocoyo struct {
-	Name string
+type USB interface {
+	Name() string
+	Connecter
+}
+
+// 嵌入结构
+type Connecter interface {
+	Connect()
+}
+
+type PhoneConnecter struct {
+	name string
 }
 
 func main()  {
-	a := cocoyo{}
-	a.Name = "cocoyo"
-	panic(55)
-	a.Print(a.Name)
+	a := PhoneConnecter{}
+	a.name = "Phone"
+	a.Connect()
+	Disconnect(a)
 }
 
-func (cocoyo cocoyo) Print(a string) {
-	fmt.Print(a)
+func (pc PhoneConnecter) Name() string {
+	return pc.name
+}
+
+func (pc PhoneConnecter) Connect() {
+	fmt.Println("Connected:", pc.name)
+}
+
+// 判断是否实现了某个接口
+func Disconnect(usb USB)  {
+	// 类型判断
+	if pc,ok := usb.(PhoneConnecter); ok {
+		fmt.Println("Disconnected:", pc.name)
+		return
+	}
+	fmt.Println("Disconnect:")
 }
